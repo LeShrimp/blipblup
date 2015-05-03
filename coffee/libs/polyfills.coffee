@@ -26,9 +26,11 @@ window.AudioContext = do ->
 
     console.log('The Web Audio API could not be initialized.')
 
+window.AudioContext.prototype.createScriptProcessor = window.AudioContext.prototype.createScriptProcessor || window.AudioContext.createJavaScriptNode
+
 window.navigator.getUserMedia = do ->
-    if window.navigator.mediaDevices?.getUserMedia?
-        return window.navigator.mediaDevices.getUserMedia
+    #if window.navigator.mediaDevices?.getUserMedia?
+    #    return window.navigator.mediaDevices.getUserMedia
 
     for vendor in ['webkit', 'moz', 'o', 'ms']
         candidateClass = window.navigator["#{vendor}GetUserMedia"]

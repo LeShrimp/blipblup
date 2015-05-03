@@ -46,14 +46,13 @@
     return console.log('The Web Audio API could not be initialized.');
   })();
 
+  window.AudioContext.prototype.createScriptProcessor = window.AudioContext.prototype.createScriptProcessor || window.AudioContext.createJavaScriptNode;
+
   window.navigator.getUserMedia = (function() {
-    var candidateClass, i, len, ref, ref1, vendor;
-    if (((ref = window.navigator.mediaDevices) != null ? ref.getUserMedia : void 0) != null) {
-      return window.navigator.mediaDevices.getUserMedia;
-    }
-    ref1 = ['webkit', 'moz', 'o', 'ms'];
-    for (i = 0, len = ref1.length; i < len; i++) {
-      vendor = ref1[i];
+    var candidateClass, i, len, ref, vendor;
+    ref = ['webkit', 'moz', 'o', 'ms'];
+    for (i = 0, len = ref.length; i < len; i++) {
+      vendor = ref[i];
       candidateClass = window.navigator[vendor + "GetUserMedia"];
       if (candidateClass != null) {
         return candidateClass;

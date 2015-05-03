@@ -7,12 +7,23 @@
     }
   });
 
-  requirejs(['jquery', 'underscore', 'sampler'], function($, _, Sampler) {
-    Sampler.startRecording();
-    return setTimeout((function() {
-      Sampler.stopRecording();
-      return Sampler.playSample(0);
-    }), 5000);
+  requirejs(['jquery', 'underscore', 'recorder'], function($, _, Recorder) {
+    return Recorder.getUserPermission(function() {
+      Recorder.startRecording();
+      console.log('Recording...');
+      return setTimeout((function() {
+        var b, buffers, ctx, source;
+        buffers = Recorder.stopRecording();
+        console.log('Stopped Recording...');
+        ctx = new window.AudioContext();
+        source = ctx.createBufferSource();
+        source.connect(ctx.destination);
+        b = ctx.createBuffer(2, buffers[0].length, 44100);
+        b.getChannelData(0).set(buffers[0], 0);
+        source.buffer = b;
+        return source.start(0);
+      }), 5000);
+    });
   });
 
 }).call(this);
