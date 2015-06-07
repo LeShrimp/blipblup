@@ -12,6 +12,8 @@ define [], () ->
 
     audioCtx = new window.AudioContext()
 
+    input = null
+
     initNewRecording = () ->
         recBuffers = ([] for i in [0...NUM_CHANNELS])
         recLength = 0

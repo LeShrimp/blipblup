@@ -8,16 +8,65 @@
   });
 
   requirejs(['jquery', 'underscore', 'recorder', 'sequencer'], function($, _, Recorder, Sequencer) {
-    return Recorder.getUserPermission(function() {
-      Recorder.startRecording();
-      console.log('Recording...');
-      return setTimeout((function() {
+    var KEYCODE_SPACE, addControlsForBuffer, init, updateScheduleForSample;
+    KEYCODE_SPACE = 32;
+    init = function() {
+      var $body;
+      $body = $('body');
+      $body.keydown(function(event) {
+        switch (event.keyCode) {
+          case KEYCODE_SPACE:
+            return Recorder.startRecording();
+        }
+      });
+      $body.keyup(function(event) {
         var buffer;
-        buffer = Recorder.stopRecording();
-        console.log('Stopped Recording...');
-        Sequencer.addSample('record1', buffer, [1, 0, 1, 0, 0, 0, 1, 0]);
+        switch (event.keyCode) {
+          case KEYCODE_SPACE:
+            buffer = Recorder.stopRecording();
+            return addControlsForBuffer(buffer);
+        }
+      });
+      if (!Sequencer.isRunning()) {
         return Sequencer.start();
-      }), 500);
+      }
+    };
+    addControlsForBuffer = (function() {
+      var counter;
+      counter = 0;
+      return function(buffer) {
+        var $checkbox, $sampleSequence, i, j, ref, sampleName;
+        sampleName = "sample-" + (counter++);
+        $sampleSequence = $("<div class=\"sample-sequence " + sampleName + "\">");
+        for (i = j = 0, ref = Sequencer.CLOCKS_PER_MEASURE; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
+          $checkbox = $("<input type=\"CHECKBOX\" data-clock-number=\"" + i + "\"></input>");
+          $checkbox.change(function() {
+            return updateScheduleForSample(sampleName);
+          });
+          $sampleSequence.append($checkbox);
+        }
+        $('.samples-container').append($sampleSequence);
+        return Sequencer.addSample(sampleName, buffer, (function() {
+          var k, ref1, results;
+          results = [];
+          for (i = k = 0, ref1 = Sequencer.CLOCKS_PER_MEASURE; 0 <= ref1 ? k <= ref1 : k >= ref1; i = 0 <= ref1 ? ++k : --k) {
+            results.push(0);
+          }
+          return results;
+        })());
+      };
+    })();
+    updateScheduleForSample = function(sampleName) {
+      var $sequence, schedule;
+      $sequence = $(".sample-sequence." + sampleName);
+      schedule = [];
+      $sequence.children().each(function(i, element) {
+        return schedule.push($(element).prop('checked') ? 1 : 0);
+      });
+      return Sequencer.setScheduleForSample(sampleName, schedule);
+    };
+    return Recorder.getUserPermission(function() {
+      return init();
     });
   });
 

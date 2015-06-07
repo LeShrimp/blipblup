@@ -1,10 +1,11 @@
 define ['underscore'], (_) ->
-    CLOCKS_PER_MEASURE = 8
-    MEASURE_LENGTH = 5             # in seconds
+    CLOCKS_PER_MEASURE = 16
+    MEASURE_LENGTH = 4             # in seconds
     CLOCK_LENGTH = MEASURE_LENGTH / CLOCKS_PER_MEASURE
 
     audioContext = new window.AudioContext()
 
+    isRunning = false
     samples = {}
 
     doScheduling = do () ->
@@ -42,6 +43,14 @@ define ['underscore'], (_) ->
 
         start: () ->
             setInterval(doScheduling, MEASURE_LENGTH * 1000/4)
+            isRunning = true
+
+        isRunning: () ->
+            return isRunning
+
+        # Export constants
+        CLOCK_LENGTH: CLOCK_LENGTH
+        CLOCKS_PER_MEASURE: CLOCKS_PER_MEASURE
 
     return Sequencer
 

@@ -20,3 +20,8 @@ h1 {
     font-family: 'Monoton', cursive;
     font-weight: 400;
 }
+
+input {
+    margin-left: 2px;
+    margin-right: 2px;
+}

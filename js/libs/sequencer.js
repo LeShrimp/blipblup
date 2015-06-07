@@ -3,11 +3,12 @@
   var hasProp = {}.hasOwnProperty;
 
   define(['underscore'], function(_) {
-    var CLOCKS_PER_MEASURE, CLOCK_LENGTH, MEASURE_LENGTH, Sequencer, audioContext, doScheduling, samples;
-    CLOCKS_PER_MEASURE = 8;
-    MEASURE_LENGTH = 5;
+    var CLOCKS_PER_MEASURE, CLOCK_LENGTH, MEASURE_LENGTH, Sequencer, audioContext, doScheduling, isRunning, samples;
+    CLOCKS_PER_MEASURE = 16;
+    MEASURE_LENGTH = 4;
     CLOCK_LENGTH = MEASURE_LENGTH / CLOCKS_PER_MEASURE;
     audioContext = new window.AudioContext();
+    isRunning = false;
     samples = {};
     doScheduling = (function() {
       var nextMeasureStart;
@@ -59,8 +60,14 @@
         return samples[sampleName].schedule = schedule;
       },
       start: function() {
-        return setInterval(doScheduling, MEASURE_LENGTH * 1000 / 4);
-      }
+        setInterval(doScheduling, MEASURE_LENGTH * 1000 / 4);
+        return isRunning = true;
+      },
+      isRunning: function() {
+        return isRunning;
+      },
+      CLOCK_LENGTH: CLOCK_LENGTH,
+      CLOCKS_PER_MEASURE: CLOCKS_PER_MEASURE
     };
     return Sequencer;
   });
