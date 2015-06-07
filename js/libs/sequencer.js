@@ -56,6 +56,10 @@
           schedule: schedule
         };
       },
+      renameSample: function(oldSampleName, newSampleName) {
+        samples[newSampleName] = samples[oldSampleName];
+        return delete samples[oldSampleName];
+      },
       setScheduleForSample: function(sampleName, schedule) {
         return samples[sampleName].schedule = schedule;
       },
