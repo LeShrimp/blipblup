@@ -38,6 +38,10 @@ define ['underscore'], (_) ->
                 schedule: schedule
             }
 
+        renameSample: (oldSampleName, newSampleName) ->
+            samples[newSampleName] = samples[oldSampleName]
+            delete samples[oldSampleName]
+
         setScheduleForSample: (sampleName, schedule) ->
             samples[sampleName].schedule = schedule
 
