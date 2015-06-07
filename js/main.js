@@ -7,22 +7,17 @@
     }
   });
 
-  requirejs(['jquery', 'underscore', 'recorder'], function($, _, Recorder) {
+  requirejs(['jquery', 'underscore', 'recorder', 'sequencer'], function($, _, Recorder, Sequencer) {
     return Recorder.getUserPermission(function() {
       Recorder.startRecording();
       console.log('Recording...');
       return setTimeout((function() {
-        var b, buffers, ctx, source;
-        buffers = Recorder.stopRecording();
+        var buffer;
+        buffer = Recorder.stopRecording();
         console.log('Stopped Recording...');
-        ctx = new window.AudioContext();
-        source = ctx.createBufferSource();
-        source.connect(ctx.destination);
-        b = ctx.createBuffer(2, buffers[0].length, 44100);
-        b.getChannelData(0).set(buffers[0], 0);
-        source.buffer = b;
-        return source.start(0);
-      }), 5000);
+        Sequencer.addSample('record1', buffer, [1, 0, 1, 0, 0, 0, 1, 0]);
+        return Sequencer.start();
+      }), 500);
     });
   });
 

@@ -4,28 +4,20 @@ require.config({
         jquery: 'jquery-2.1.3'
 })
 
-requirejs ['jquery', 'underscore', 'recorder'], ($, _, Recorder) ->
+requirejs ['jquery', 'underscore', 'recorder', 'sequencer'], ($, _, Recorder, Sequencer) ->
+
     Recorder.getUserPermission(() ->
         Recorder.startRecording()
         console.log('Recording...')
 
         setTimeout(
             (() ->
-                buffers = Recorder.stopRecording()
+                buffer = Recorder.stopRecording()
                 console.log('Stopped Recording...')
 
-                ctx = new window.AudioContext()
-                source = ctx.createBufferSource()
-                source.connect(ctx.destination)
-
-                b = ctx.createBuffer(2, buffers[0].length, 44100)
-                b.getChannelData(0).set(buffers[0], 0)
-
-                source.buffer = b
-
-                source.start(0)
-
+                Sequencer.addSample('record1', buffer, [1,0,1,0,0,0,1,0])
+                Sequencer.start()
             ),
-            5000
+            500
         )
     )

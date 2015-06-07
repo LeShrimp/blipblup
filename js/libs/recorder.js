@@ -80,14 +80,17 @@
         return true;
       },
       stopRecording: function() {
-        var buffers;
+        var b, buffers;
         if (!isRecordingPossible) {
           return false;
         }
         isRecording = false;
         buffers = getBuffers();
         initNewRecording();
-        return buffers;
+        b = audioCtx.createBuffer(2, buffers[0].length, 44100);
+        b.getChannelData(0).set(buffers[0], 0);
+        b.getChannelData(1).set(buffers[1], 0);
+        return b;
       },
       isReady: function() {
         return isRecordingPossible;
