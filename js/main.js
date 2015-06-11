@@ -27,6 +27,17 @@
             return addControlsForBuffer(buffer);
         }
       });
+      Sequencer.setBeatListener(function(beatIndex) {
+        var $checkboxWrapper, results;
+        $checkboxWrapper = $('.schedule-checkbox-wrapper');
+        results = [];
+        while (beatIndex < $checkboxWrapper.length) {
+          $checkboxWrapper.eq(beatIndex - 1).removeClass('is-playing');
+          $checkboxWrapper.eq(beatIndex).addClass('is-playing');
+          results.push(beatIndex += Sequencer.BEATS_PER_MEASURE);
+        }
+        return results;
+      });
       if (!Sequencer.isRunning()) {
         return Sequencer.start();
       }
@@ -38,7 +49,7 @@
         var $checkbox, $deleteSampleButton, $gainRange, $sampleNameInput, $sampleSequence, i, j, ref, sampleName;
         sampleName = "sample-" + (counter++);
         $sampleSequence = $("<div class=\"sample-sequence\" data-sample-name=\"" + sampleName + "\">");
-        $sampleNameInput = $("<input type=\"text\" class=\"sample-name\" value=\"" + sampleName + "\"></input>");
+        $sampleNameInput = $("<input type=\"text\" class=\"sample-name\" value=\"" + sampleName + "\" tabindex=\"" + counter + "\"></input>");
         $sampleNameInput.change(function(event) {
           var newSampleName, oldSampleName;
           oldSampleName = $(event.target).parent().attr('data-sample-name');
@@ -47,14 +58,14 @@
           return $(event.target).parent().attr('data-sample-name', newSampleName);
         });
         $sampleSequence.append($sampleNameInput);
-        for (i = j = 0, ref = Sequencer.CLOCKS_PER_MEASURE; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
+        for (i = j = 0, ref = Sequencer.BEATS_PER_MEASURE; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
           $checkbox = $("<input class=\"schedule-checkbox\" type=\"CHECKBOX\" data-clock-number=\"" + i + "\"></input>");
           $checkbox.change(function(event) {
             var name;
-            name = $(event.target).parent().attr('data-sample-name');
+            name = $(event.target).parents('.sample-sequence').attr('data-sample-name');
             return updateScheduleForSample(name);
           });
-          $sampleSequence.append($checkbox);
+          $sampleSequence.append($checkbox.wrap('<span class="schedule-checkbox-wrapper"></span>').parent());
         }
         $gainRange = $("<input type=\"range\"></input>");
         $gainRange.change(function(event) {
@@ -71,7 +82,7 @@
         return Sequencer.addSample(sampleName, buffer, (function() {
           var k, ref1, results;
           results = [];
-          for (i = k = 0, ref1 = Sequencer.CLOCKS_PER_MEASURE; 0 <= ref1 ? k < ref1 : k > ref1; i = 0 <= ref1 ? ++k : --k) {
+          for (i = k = 0, ref1 = Sequencer.BEATS_PER_MEASURE; 0 <= ref1 ? k < ref1 : k > ref1; i = 0 <= ref1 ? ++k : --k) {
             results.push(0);
           }
           return results;
@@ -82,7 +93,7 @@
       var $sequence, schedule;
       $sequence = $(".sample-sequence[data-sample-name='" + sampleName + "']");
       schedule = [];
-      $sequence.children().each(function(i, element) {
+      $sequence.find('.schedule-checkbox').each(function(i, element) {
         return schedule.push($(element).prop('checked') ? 1 : 0);
       });
       return Sequencer.setScheduleForSample(sampleName, schedule);

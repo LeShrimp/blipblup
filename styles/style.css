@@ -35,9 +35,17 @@ input.sample-name {
     margin-right: 10px;
 }
 
+span.schedule-checkbox-wrapper {
+    border: 2px solid rgba(0,0,0,0);
+}
+
+span.schedule-checkbox-wrapper.is-playing {
+    border-color: #863232;
+}
+
 input.schedule-checkbox {
-    margin-left: 7px;
-    margin-right: 7px;
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
 }
 
 .delete-sample {

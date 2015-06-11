@@ -22,6 +22,16 @@ requirejs ['jquery', 'underscore', 'recorder', 'sequencer'], ($, _, Recorder, Se
                     addControlsForBuffer(buffer)
         )
 
+        Sequencer.setBeatListener((beatIndex) ->
+            $checkboxWrapper = $('.schedule-checkbox-wrapper')
+            #previousBeatIndex = (beatIndex + Sequencer.BEATS_PER_MEASURE - 1) % Sequencer.BEATS_PER_MEASURE
+
+            while beatIndex < $checkboxWrapper.length
+                $checkboxWrapper.eq(beatIndex-1).removeClass('is-playing')
+                $checkboxWrapper.eq(beatIndex).addClass('is-playing')
+                beatIndex += Sequencer.BEATS_PER_MEASURE
+        )
+
         if not Sequencer.isRunning()
             Sequencer.start()
 
@@ -31,7 +41,8 @@ requirejs ['jquery', 'underscore', 'recorder', 'sequencer'], ($, _, Recorder, Se
             sampleName = "sample-#{counter++}"
             $sampleSequence = $("<div class=\"sample-sequence\" data-sample-name=\"#{sampleName}\">")
 
-            $sampleNameInput = $("<input type=\"text\" class=\"sample-name\" value=\"#{sampleName}\"></input>")
+            # Add textbox to name sample
+            $sampleNameInput = $("<input type=\"text\" class=\"sample-name\" value=\"#{sampleName}\" tabindex=\"#{counter}\"></input>")
             $sampleNameInput.change((event) ->
                 oldSampleName = $(event.target).parent().attr('data-sample-name')
                 newSampleName = $(event.target).val()
@@ -41,20 +52,23 @@ requirejs ['jquery', 'underscore', 'recorder', 'sequencer'], ($, _, Recorder, Se
             )
             $sampleSequence.append($sampleNameInput)
 
-            for i in [0...Sequencer.CLOCKS_PER_MEASURE]
+            # Add checkbox for each beat
+            for i in [0...Sequencer.BEATS_PER_MEASURE]
                 $checkbox = $("<input class=\"schedule-checkbox\" type=\"CHECKBOX\" data-clock-number=\"#{i}\"></input>")
                 $checkbox.change((event) ->
-                    name = $(event.target).parent().attr('data-sample-name')
+                    name = $(event.target).parents('.sample-sequence').attr('data-sample-name')
                     updateScheduleForSample(name)
                 )
-                $sampleSequence.append($checkbox)
+                $sampleSequence.append($checkbox.wrap('<span class="schedule-checkbox-wrapper"></span>').parent())
 
+            # Add possibility to change volume
             $gainRange = $("<input type=\"range\"></input>")
             $gainRange.change((event) ->
                 Sequencer.setGainForSample(sampleName, $(this).val()/100)
             )
             $sampleSequence.append($gainRange)
 
+            # Add button for deletion of sample
             $deleteSampleButton = $("<i class=\"fa fa-trash-o delete-sample\"></i>")
             $deleteSampleButton.click((event) ->
                 Sequencer.removeSample(sampleName)
@@ -64,13 +78,13 @@ requirejs ['jquery', 'underscore', 'recorder', 'sequencer'], ($, _, Recorder, Se
 
             $('.samples-container').append($sampleSequence)
 
-            Sequencer.addSample(sampleName, buffer, (0 for i in [0...Sequencer.CLOCKS_PER_MEASURE]))
+            Sequencer.addSample(sampleName, buffer, (0 for i in [0...Sequencer.BEATS_PER_MEASURE]))
 
     updateScheduleForSample = (sampleName) ->
         $sequence = $(".sample-sequence[data-sample-name='#{sampleName}']")
         schedule = []
 
-        $sequence.children().each((i, element) ->
+        $sequence.find('.schedule-checkbox').each((i, element) ->
             schedule.push(if $(element).prop('checked') then 1 else 0)
         )
 

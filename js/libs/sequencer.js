@@ -3,37 +3,59 @@
   var hasProp = {}.hasOwnProperty;
 
   define(['underscore'], function(_) {
-    var CLOCKS_PER_MEASURE, CLOCK_LENGTH, MEASURE_LENGTH, Sequencer, audioContext, doScheduling, isRunning, samples;
-    CLOCKS_PER_MEASURE = 16;
-    MEASURE_LENGTH = 4;
-    CLOCK_LENGTH = MEASURE_LENGTH / CLOCKS_PER_MEASURE;
+    var BEATS_PER_MEASURE, BEAT_DURATION, MEASURE_DURATION, Sequencer, audioContext, beatListener, customBeatListener, doScheduling, isRunning, samples;
+    BEATS_PER_MEASURE = 16;
+    MEASURE_DURATION = 4;
+    BEAT_DURATION = MEASURE_DURATION / BEATS_PER_MEASURE;
     audioContext = new window.AudioContext();
     isRunning = false;
     samples = {};
+    customBeatListener = null;
+    beatListener = function(beatIndex, beatTime) {
+      var name, nextBeatIndex, nextBeatTime, node, sample;
+      nextBeatTime = beatTime + BEAT_DURATION;
+      nextBeatIndex = (beatIndex + 1) % BEATS_PER_MEASURE;
+      for (name in samples) {
+        if (!hasProp.call(samples, name)) continue;
+        sample = samples[name];
+        if (sample.schedule[nextBeatIndex] === 1) {
+          node = audioContext.createBufferSource();
+          node.buffer = sample.buffer;
+          node.connect(sample.destination);
+          node.start(nextBeatTime);
+        }
+      }
+      if (customBeatListener != null) {
+        return customBeatListener(beatIndex);
+      }
+    };
     doScheduling = (function() {
       var nextMeasureStart;
-      nextMeasureStart = audioContext.currentTime + MEASURE_LENGTH;
+      nextMeasureStart = audioContext.currentTime + MEASURE_DURATION;
       return function() {
-        var currentTime, i, isNote, j, len, name, node, ref, sample;
+        var beatIndex, beatTime, beatTimes, currentTime, fn, i, j, len;
         currentTime = audioContext.currentTime;
-        if (currentTime + MEASURE_LENGTH <= nextMeasureStart) {
+        if (currentTime + MEASURE_DURATION <= nextMeasureStart) {
           return;
         }
-        for (name in samples) {
-          if (!hasProp.call(samples, name)) continue;
-          sample = samples[name];
-          ref = sample.schedule;
-          for (i = j = 0, len = ref.length; j < len; i = ++j) {
-            isNote = ref[i];
-            if (isNote === 1) {
-              node = audioContext.createBufferSource();
-              node.buffer = sample.buffer;
-              node.connect(sample.destination);
-              node.start(nextMeasureStart + i * CLOCK_LENGTH);
-            }
+        beatTimes = (function() {
+          var j, ref, results;
+          results = [];
+          for (i = j = 0, ref = BEATS_PER_MEASURE; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
+            results.push(nextMeasureStart + i * BEAT_DURATION);
           }
+          return results;
+        })();
+        fn = function(beatIndex, beatTime) {
+          return setTimeout(function() {
+            return beatListener(beatIndex, beatTime);
+          }, (beatTime - currentTime) * 1000);
+        };
+        for (beatIndex = j = 0, len = beatTimes.length; j < len; beatIndex = ++j) {
+          beatTime = beatTimes[beatIndex];
+          fn(beatIndex, beatTime);
         }
-        return nextMeasureStart += MEASURE_LENGTH;
+        return nextMeasureStart += MEASURE_DURATION;
       };
     })();
     Sequencer = {
@@ -46,7 +68,7 @@
           schedule = (function() {
             var j, ref, results;
             results = [];
-            for (_ = j = 0, ref = CLOCKS_PER_MEASURE; 0 <= ref ? j < ref : j > ref; _ = 0 <= ref ? ++j : --j) {
+            for (_ = j = 0, ref = BEATS_PER_MEASURE; 0 <= ref ? j < ref : j > ref; _ = 0 <= ref ? ++j : --j) {
               results.push(0);
             }
             return results;
@@ -74,15 +96,18 @@
       setGainForSample: function(sampleName, gainValue) {
         return samples[sampleName].destination.gain.value = gainValue;
       },
+      setBeatListener: function(listener) {
+        return customBeatListener = listener;
+      },
       start: function() {
-        setInterval(doScheduling, MEASURE_LENGTH * 1000 / 4);
+        setInterval(doScheduling, MEASURE_DURATION * 1000 / 2);
         return isRunning = true;
       },
       isRunning: function() {
         return isRunning;
       },
-      CLOCK_LENGTH: CLOCK_LENGTH,
-      CLOCKS_PER_MEASURE: CLOCKS_PER_MEASURE
+      BEAT_DURATION: BEAT_DURATION,
+      BEATS_PER_MEASURE: BEATS_PER_MEASURE
     };
     return Sequencer;
   });
