@@ -47,7 +47,7 @@
           return $(event.target).parent().attr('data-sample-name', newSampleName);
         });
         $sampleSequence.append($sampleNameInput);
-        for (i = j = 0, ref = Sequencer.CLOCKS_PER_MEASURE; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
+        for (i = j = 0, ref = Sequencer.CLOCKS_PER_MEASURE; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
           $checkbox = $("<input class=\"schedule-checkbox\" type=\"CHECKBOX\" data-clock-number=\"" + i + "\"></input>");
           $checkbox.change(function(event) {
             var name;
@@ -58,14 +58,15 @@
         }
         $deleteSampleButton = $("<i class=\"fa fa-trash-o delete-sample\"></i>");
         $deleteSampleButton.click(function(event) {
-          return console.log("Yep");
+          Sequencer.removeSample(sampleName);
+          return $(".sample-sequence[data-sample-name='" + sampleName + "']").remove();
         });
         $sampleSequence.append($deleteSampleButton);
         $('.samples-container').append($sampleSequence);
         return Sequencer.addSample(sampleName, buffer, (function() {
           var k, ref1, results;
           results = [];
-          for (i = k = 0, ref1 = Sequencer.CLOCKS_PER_MEASURE; 0 <= ref1 ? k <= ref1 : k >= ref1; i = 0 <= ref1 ? ++k : --k) {
+          for (i = k = 0, ref1 = Sequencer.CLOCKS_PER_MEASURE; 0 <= ref1 ? k < ref1 : k > ref1; i = 0 <= ref1 ? ++k : --k) {
             results.push(0);
           }
           return results;

@@ -31,12 +31,15 @@ define ['underscore'], (_) ->
     Sequencer =
         addSample: (sampleName, buffer, schedule = null) ->
             if (schedule == null)
-                schedule = (0 for _ in [0..CLOCKS_PER_MEASURE])
+                schedule = (0 for _ in [0...CLOCKS_PER_MEASURE])
 
             samples[sampleName] = {
                 buffer: buffer
                 schedule: schedule
             }
+
+        removeSample: (sampleName) ->
+            delete samples[sampleName]
 
         renameSample: (oldSampleName, newSampleName) ->
             samples[newSampleName] = samples[oldSampleName]

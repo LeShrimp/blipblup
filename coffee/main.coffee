@@ -41,7 +41,7 @@ requirejs ['jquery', 'underscore', 'recorder', 'sequencer'], ($, _, Recorder, Se
             )
             $sampleSequence.append($sampleNameInput)
 
-            for i in [0..Sequencer.CLOCKS_PER_MEASURE]
+            for i in [0...Sequencer.CLOCKS_PER_MEASURE]
                 $checkbox = $("<input class=\"schedule-checkbox\" type=\"CHECKBOX\" data-clock-number=\"#{i}\"></input>")
                 $checkbox.change((event) ->
                     name = $(event.target).parent().attr('data-sample-name')
@@ -51,13 +51,14 @@ requirejs ['jquery', 'underscore', 'recorder', 'sequencer'], ($, _, Recorder, Se
 
             $deleteSampleButton = $("<i class=\"fa fa-trash-o delete-sample\"></i>")
             $deleteSampleButton.click((event) ->
-                console.log("Yep")
+                Sequencer.removeSample(sampleName)
+                $(".sample-sequence[data-sample-name='#{sampleName}']").remove()
             )
             $sampleSequence.append($deleteSampleButton)
 
             $('.samples-container').append($sampleSequence)
 
-            Sequencer.addSample(sampleName, buffer, (0 for i in [0..Sequencer.CLOCKS_PER_MEASURE]))
+            Sequencer.addSample(sampleName, buffer, (0 for i in [0...Sequencer.CLOCKS_PER_MEASURE]))
 
     updateScheduleForSample = (sampleName) ->
         $sequence = $(".sample-sequence[data-sample-name='#{sampleName}']")

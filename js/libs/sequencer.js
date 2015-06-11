@@ -45,7 +45,7 @@
           schedule = (function() {
             var j, ref, results;
             results = [];
-            for (_ = j = 0, ref = CLOCKS_PER_MEASURE; 0 <= ref ? j <= ref : j >= ref; _ = 0 <= ref ? ++j : --j) {
+            for (_ = j = 0, ref = CLOCKS_PER_MEASURE; 0 <= ref ? j < ref : j > ref; _ = 0 <= ref ? ++j : --j) {
               results.push(0);
             }
             return results;
@@ -55,6 +55,9 @@
           buffer: buffer,
           schedule: schedule
         };
+      },
+      removeSample: function(sampleName) {
+        return delete samples[sampleName];
       },
       renameSample: function(oldSampleName, newSampleName) {
         samples[newSampleName] = samples[oldSampleName];
