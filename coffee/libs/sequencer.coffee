@@ -22,7 +22,7 @@ define ['underscore'], (_) ->
                         node = audioContext.createBufferSource()
                         node.buffer = sample.buffer
 
-                        node.connect(audioContext.destination)
+                        node.connect(sample.destination)
 
                         node.start(nextMeasureStart + i * CLOCK_LENGTH)
 
@@ -33,9 +33,15 @@ define ['underscore'], (_) ->
             if (schedule == null)
                 schedule = (0 for _ in [0...CLOCKS_PER_MEASURE])
 
+            # This is
+            destination = audioContext.createGain()
+            destination.gain.value = 0.5
+            destination.connect(audioContext.destination)
+
             samples[sampleName] = {
                 buffer: buffer
                 schedule: schedule
+                destination: destination
             }
 
         removeSample: (sampleName) ->
@@ -47,6 +53,9 @@ define ['underscore'], (_) ->
 
         setScheduleForSample: (sampleName, schedule) ->
             samples[sampleName].schedule = schedule
+
+        setGainForSample: (sampleName, gainValue) ->
+            samples[sampleName].destination.gain.value = gainValue
 
         start: () ->
             setInterval(doScheduling, MEASURE_LENGTH * 1000/4)

@@ -35,7 +35,7 @@
       var counter;
       counter = 0;
       return function(buffer) {
-        var $checkbox, $deleteSampleButton, $sampleNameInput, $sampleSequence, i, j, ref, sampleName;
+        var $checkbox, $deleteSampleButton, $gainRange, $sampleNameInput, $sampleSequence, i, j, ref, sampleName;
         sampleName = "sample-" + (counter++);
         $sampleSequence = $("<div class=\"sample-sequence\" data-sample-name=\"" + sampleName + "\">");
         $sampleNameInput = $("<input type=\"text\" class=\"sample-name\" value=\"" + sampleName + "\"></input>");
@@ -56,6 +56,11 @@
           });
           $sampleSequence.append($checkbox);
         }
+        $gainRange = $("<input type=\"range\"></input>");
+        $gainRange.change(function(event) {
+          return Sequencer.setGainForSample(sampleName, $(this).val() / 100);
+        });
+        $sampleSequence.append($gainRange);
         $deleteSampleButton = $("<i class=\"fa fa-trash-o delete-sample\"></i>");
         $deleteSampleButton.click(function(event) {
           Sequencer.removeSample(sampleName);

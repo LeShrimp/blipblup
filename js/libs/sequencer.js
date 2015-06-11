@@ -28,7 +28,7 @@
             if (isNote === 1) {
               node = audioContext.createBufferSource();
               node.buffer = sample.buffer;
-              node.connect(audioContext.destination);
+              node.connect(sample.destination);
               node.start(nextMeasureStart + i * CLOCK_LENGTH);
             }
           }
@@ -38,6 +38,7 @@
     })();
     Sequencer = {
       addSample: function(sampleName, buffer, schedule) {
+        var destination;
         if (schedule == null) {
           schedule = null;
         }
@@ -51,9 +52,13 @@
             return results;
           })();
         }
+        destination = audioContext.createGain();
+        destination.gain.value = 0.5;
+        destination.connect(audioContext.destination);
         return samples[sampleName] = {
           buffer: buffer,
-          schedule: schedule
+          schedule: schedule,
+          destination: destination
         };
       },
       removeSample: function(sampleName) {
@@ -65,6 +70,9 @@
       },
       setScheduleForSample: function(sampleName, schedule) {
         return samples[sampleName].schedule = schedule;
+      },
+      setGainForSample: function(sampleName, gainValue) {
+        return samples[sampleName].destination.gain.value = gainValue;
       },
       start: function() {
         setInterval(doScheduling, MEASURE_LENGTH * 1000 / 4);

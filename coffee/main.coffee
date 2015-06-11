@@ -49,6 +49,12 @@ requirejs ['jquery', 'underscore', 'recorder', 'sequencer'], ($, _, Recorder, Se
                 )
                 $sampleSequence.append($checkbox)
 
+            $gainRange = $("<input type=\"range\"></input>")
+            $gainRange.change((event) ->
+                Sequencer.setGainForSample(sampleName, $(this).val()/100)
+            )
+            $sampleSequence.append($gainRange)
+
             $deleteSampleButton = $("<i class=\"fa fa-trash-o delete-sample\"></i>")
             $deleteSampleButton.click((event) ->
                 Sequencer.removeSample(sampleName)
