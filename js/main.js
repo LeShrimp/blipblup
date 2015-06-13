@@ -8,25 +8,26 @@
   });
 
   requirejs(['jquery', 'underscore', 'recorder', 'sequencer'], function($, _, Recorder, Sequencer) {
-    var KEYCODE_SPACE, addControlsForBuffer, init, updateScheduleForSample;
+    var KEYCODE_SPACE, addControlsForBuffer, init, startRecording, stopRecording, updateScheduleForSample;
     KEYCODE_SPACE = 32;
     init = function() {
-      var $body;
+      var $body, $recorderBox;
       $body = $('body');
       $body.keydown(function(event) {
         switch (event.keyCode) {
           case KEYCODE_SPACE:
-            return Recorder.startRecording();
+            return startRecording();
         }
       });
       $body.keyup(function(event) {
-        var buffer;
         switch (event.keyCode) {
           case KEYCODE_SPACE:
-            buffer = Recorder.stopRecording();
-            return addControlsForBuffer(buffer);
+            return stopRecording();
         }
       });
+      $recorderBox = $('#recorder-box');
+      $recorderBox.mousedown(startRecording);
+      $recorderBox.mouseup(stopRecording);
       Sequencer.setBeatListener(function(beatIndex) {
         var $checkboxWrapper, results;
         $checkboxWrapper = $('.schedule-checkbox-wrapper');
@@ -41,6 +42,17 @@
       if (!Sequencer.isRunning()) {
         return Sequencer.start();
       }
+    };
+    startRecording = function() {
+      Recorder.startRecording();
+      $('#recorder-box').addClass('recording');
+      return $('#info-text').remove();
+    };
+    stopRecording = function() {
+      var buffer;
+      buffer = Recorder.stopRecording();
+      $('#recorder-box').removeClass('recording');
+      return addControlsForBuffer(buffer);
     };
     addControlsForBuffer = (function() {
       var counter;

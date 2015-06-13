@@ -53,7 +53,6 @@ define ['underscore'], (_) ->
             if (schedule == null)
                 schedule = (0 for _ in [0...BEATS_PER_MEASURE])
 
-            # This is
             destination = audioContext.createGain()
             destination.gain.value = 0.5
             destination.connect(audioContext.destination)

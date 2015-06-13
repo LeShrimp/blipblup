@@ -11,16 +11,18 @@ requirejs ['jquery', 'underscore', 'recorder', 'sequencer'], ($, _, Recorder, Se
         $body = $('body')
         $body.keydown((event) ->
             switch event.keyCode
-                when KEYCODE_SPACE 
-                    Recorder.startRecording()
+                when KEYCODE_SPACE then startRecording()
+
         )
 
         $body.keyup((event) ->
             switch event.keyCode
-                when KEYCODE_SPACE
-                    buffer = Recorder.stopRecording()
-                    addControlsForBuffer(buffer)
+                when KEYCODE_SPACE then stopRecording()
         )
+
+        $recorderBox = $('#recorder-box')
+        $recorderBox.mousedown(startRecording)
+        $recorderBox.mouseup(stopRecording)
 
         Sequencer.setBeatListener((beatIndex) ->
             $checkboxWrapper = $('.schedule-checkbox-wrapper')
@@ -34,6 +36,16 @@ requirejs ['jquery', 'underscore', 'recorder', 'sequencer'], ($, _, Recorder, Se
 
         if not Sequencer.isRunning()
             Sequencer.start()
+
+    startRecording = () ->
+        Recorder.startRecording()
+        $('#recorder-box').addClass('recording')
+        $('#info-text').remove()
+
+    stopRecording = () ->
+        buffer = Recorder.stopRecording()
+        $('#recorder-box').removeClass('recording')
+        addControlsForBuffer(buffer)
 
     addControlsForBuffer = do () ->
         counter = 0
