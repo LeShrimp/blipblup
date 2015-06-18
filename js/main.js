@@ -26,8 +26,8 @@
         }
       });
       $recorderBox = $('#recorder-box');
-      $recorderBox.mousedown(startRecording);
-      $recorderBox.mouseup(stopRecording);
+      $recorderBox.bind('touchstart mousedown', startRecording);
+      $recorderBox.bind('touchend mouseup', stopRecording);
       Sequencer.setBeatListener(function(beatIndex) {
         var $checkboxWrapper, results;
         $checkboxWrapper = $('.schedule-checkbox-wrapper');

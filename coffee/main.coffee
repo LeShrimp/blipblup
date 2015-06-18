@@ -21,8 +21,8 @@ requirejs ['jquery', 'underscore', 'recorder', 'sequencer'], ($, _, Recorder, Se
         )
 
         $recorderBox = $('#recorder-box')
-        $recorderBox.mousedown(startRecording)
-        $recorderBox.mouseup(stopRecording)
+        $recorderBox.bind('touchstart mousedown', startRecording)
+        $recorderBox.bind('touchend mouseup', stopRecording)
 
         Sequencer.setBeatListener((beatIndex) ->
             $checkboxWrapper = $('.schedule-checkbox-wrapper')
